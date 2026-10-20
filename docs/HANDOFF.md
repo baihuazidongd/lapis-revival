@@ -39,7 +39,7 @@ sha1sum -c <(awk '$1!~/^#/ {print $3"  "$1}' manifests/required-inputs.tsv)
 ---
 
 本仓库只有代码、工具与文档。完整离线包（两个可安装 APK + 两棵资源树，约 13 GB）不在这里，也不在任何公开网盘：
-它是第三方游戏内容的派生物，公开分发不是我们能替原权利人做的决定。需要它的接手人按 `NOTICE.md` 的方式联系仓库所有者，
+它是第三方游戏内容的派生物，公开分发不是我们能替原权利人做的决定。需要它的接手人在公开仓库开一个 Issue 联系仓库所有者，
 由所有者以邀请方式提供（协作者，或私有仓库的 Release 附件）。拿到之后第一件事：`bash assemble_and_verify.sh --selftest`，
 再 `bash assemble_and_verify.sh tree_cn.zip` 逐卷校验。
 
