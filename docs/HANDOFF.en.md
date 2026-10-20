@@ -43,8 +43,12 @@ so identity can only be judged by the **assets inside the package** and the lite
 1. Stage the §0 inputs and verify their digests.
 2. `apktool d -f -o game_decoded <official APK>`; create your own keystore, `export KS_PASS=...`.
 3. Follow `docs/BUILD.md` §0 to replace the placeholder paths in the scripts with your directories, `export ADB_BIN=... SERIAL=...`.
-4. Run the generator scripts (`make_state` / `make_shopgoods` / `make_pvpreward` / `make_stageawards` /
-   `make_mirror` / `gen_protocol_descriptor`) to produce the 16 assets in `stubapp/assets/`.
+4. Assemble the 16 assets in `stubapp/assets/`: 11 are produced by generators shipped here
+   (`make_state` → `player.json`+`shop.json` / `make_shopgoods` / `make_pvpreward` / `make_stageawards` /
+   `arena_state` → `arena.json`+`mail.json`+`task.json` / `gacha_state` / `make_mirror` / `gen_protocol_descriptor`),
+   while the remaining 5 (`common.descriptor.bin` / `version.json` / `lab-account.json` / `startup-key.json` /
+   `protocol-static.json`) are **not generated** - take them from the `assets/` of the `base.apk` installed on a
+   device; the exact commands are in the source table of `docs/BUILD.md` §2.
    **Criterion**: `SeedHashTest` passes (it checks the pin with `Seed.java`'s own hash code, including a "flip one byte and it must fail" control).
 5. `NO_INSTALL=1 PKG=cn bash tools/rebuild_relay.sh`.
    **Criterion**: the six gates built into the script — javac / d8 / asset sync / `SeedHashTest` / `pincheck` (once on the staged copy and once in-apk) /

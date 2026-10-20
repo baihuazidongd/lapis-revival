@@ -43,8 +43,12 @@ sha1sum -c <(awk '$1!~/^#/ {print $3"  "$1}' manifests/required-inputs.tsv)
 1. §0 の入力を揃えてダイジェストを照合する。
 2. `apktool d -f -o game_decoded <公式 APK>`；自分の keystore を作り、`export KS_PASS=...`。
 3. `docs/BUILD.md` §0 に従ってスクリプト中のプレースホルダパスを自分のディレクトリに書き換え、`export ADB_BIN=... SERIAL=...`。
-4. 生成系スクリプト（`make_state` / `make_shopgoods` / `make_pvpreward` / `make_stageawards` /
-   `make_mirror` / `gen_protocol_descriptor`）を回し、`stubapp/assets/` の 16 個のアセットを出力する。
+4. `stubapp/assets/` の 16 アセットを揃える：11 個は同梱の生成スクリプトで作る
+   （`make_state` が `player.json`+`shop.json` / `make_shopgoods` / `make_pvpreward` / `make_stageawards` /
+   `arena_state` が `arena.json`+`mail.json`+`task.json` / `gacha_state` / `make_mirror` / `gen_protocol_descriptor`）、
+   あとの 5 個（`common.descriptor.bin` / `version.json` / `lab-account.json` / `startup-key.json` /
+   `protocol-static.json`）は**生成しない**——端末にインストール済みの `base.apk` の `assets/` から取ります。
+   手順は `docs/BUILD.md` §2 の入手元表にあります。
    **判定基準**：`SeedHashTest` の合格（`Seed.java` 自身のハッシュコードで pin を突き合わせ、「1 バイト変えれば必ず失敗」のコントロールも含む）。
 5. `NO_INSTALL=1 PKG=cn bash tools/rebuild_relay.sh`。
    **判定基準**：スクリプト内蔵の 6 ゲート——javac / d8 / アセット同期 / `SeedHashTest` / `pincheck`（ステージ時点と in-apk の 2 回）/

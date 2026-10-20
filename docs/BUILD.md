@@ -109,18 +109,45 @@ NO_INSTALL=1 PKG=jp bash tools/rebuild_relay.sh     # -> game_relay_jp.apk
    再从 APK 里解出 `assets/bin/Data/9bdd7e35b810546fdbe3f8fa3ec1fd55`，断言那个烤进 Unity 的
    端点串含 18080（cn）/ 18090（jp）。
 
-### 生成类资产（改了主数据就要重跑）
+### 随包的 16 个资产分别从哪来（`rebuild_relay.sh` 的同步清单）
 
-| 脚本 | 产出 | 读什么 |
+| 资产 | 来源 | 说明 |
 | --- | --- | --- |
-| `make_state.py` | `player.json` | 主数据 + 存档状态：卡池、关卡星级、钱包、社团、房间座位 |
-| `make_shopgoods.py` | `shopgoods.json` | P121 的扣费/发放/限购表 |
-| `make_pvpreward.py` / `make_stageawards.py` | 对应 json | 竞技场与关卡奖励 |
-| `make_mirror.py` | `mirror.json` | 时空夹缝：`ClubMirror` / `ClubMirrorEvent` / `Config` / `DropGroup` |
-| `gen_protocol_descriptor.py` | `protocol.descriptor.bin` | 客户端 Lua 里的 schema 声明（**单个 `FileDescriptorProto`，不是 Set**，407 个 message） |
+| `protocol.descriptor.bin` | `gen_protocol_descriptor.py` | 客户端 Lua 里的 schema 声明（**单个 `FileDescriptorProto`，不是 Set**，407 个 message）；桩用 `DynamicMessage` 按它组装响应，字段名与编号都在这里 |
+| `player.json` | `make_state.py` | 主数据 + 存档状态：卡池、关卡星级、钱包、社团、房间座位 |
+| `shop.json` | `make_state.py` | 商店页结构（与 `player.json` 同一脚本产出） |
+| `shopgoods.json` | `make_shopgoods.py` | `P121` 的扣费/发放/限购表 |
+| `pvpreward.json` | `make_pvpreward.py` | 竞技场结算奖励 |
+| `stageawards.json` | `make_stageawards.py` | 关卡奖励 |
+| `arena.json` | `arena_state.py` | `P200`/`P203` 的赛季与对手列表；每个 id 都从 `master_data.db` 读出并交叉核对，核不上直接抛错而不是发一个客户端解不了的 id |
+| `mail.json` | `arena_state.py` | `P80` 邮件与奖励 |
+| `task.json` | `arena_state.py` | `P60` 任务（写进去的每个任务 id 必须存在于 `TaskData`） |
+| `gacha.json` | `gacha_state.py` | `P1024` 卡池 |
+| `mirror.json` | `make_mirror.py` | 时空夹缝 `P180..P186`：`ClubMirror` / `ClubMirrorEvent` / `Config` / `DropGroup` |
+| `common.descriptor.bin` | **我们不生成**：从设备上已安装的 `base.apk` 的 `assets/` 取 | 客户端自带 |
+| `version.json` | 同上 | 客户端自带 |
+| `lab-account.json` | 同上 | 客户端配置，属游戏内容 → 不进仓库 |
+| `startup-key.json` | 同上 | 同上 |
+| `protocol-static.json` | 同上 | 同上 |
+| `manifest.xml` | 同样从 `base.apk` 的 `assets/` 取 | 客户端自带的 bundle 清单；它**不在同步清单里**（不由我们打包），但资源解析依赖它 |
 
-`protocol.descriptor.bin` 是"不看 Lua 也能问出客户端读哪个字段"的入口：桩用
-`DynamicMessage` 按它组装响应，字段名与编号都在这里。
+上面所有生成脚本的输入都只有你自己那份 `master_data.db` / `master_data_lang.db`（见 §0），
+所以"改了主数据就要重跑对应脚本"，否则 APK 里的资产与数据库不一致。
+
+拿最后 5 个（客户端自带那批）的做法：
+
+```bash
+adb -s "$SERIAL" shell pm path com.klab.lapis          # 给出 /data/app/.../base.apk
+adb -s "$SERIAL" pull <上面那条路径> base.apk
+unzip -o base.apk "assets/common.descriptor.bin" "assets/version.json" \
+  "assets/lab-account.json" "assets/startup-key.json" "assets/protocol-static.json"
+cp assets/* ../../stubapp/assets/                       # 放进构建根的资产目录
+```
+
+这 5 个**没有摘要门**可核：`Seed.java` 只钉 `master_data.db` 与 `master_data_lang.db`
+（摘要在 `manifests/pinned-assets.tsv`，那两个文件请用 `manifests/required-inputs.tsv` 核）。
+所以只能按行为判：客户端在冷启动阶段读这 5 个，拿错的表现是标题画面起不来、
+或首页 `Config` 表空。判据仍然是协议号 + 异常计数（§7）。
 
 ---
 
@@ -194,6 +221,10 @@ adb -s "$SERIAL" logcat -d | grep "SEED tree installed"
 ---
 
 ## 7. 验收
+
+- 首页参考图不是自动长出来的：`tools/set_home_ref.sh` 只产一张候选帧，**必须人工看过**再
+  `cp home_cand.png home_ref.png`。`delivery_gate.sh` 在没有 `home_ref.png` 时直接 FATAL 退出，
+  它不会替你编一张。
 
 ```bash
 bash tools/delivery_gate.sh      # 冷启动 + 逐页判据

@@ -43,8 +43,12 @@ sha1sum -c <(awk '$1!~/^#/ {print $3"  "$1}' manifests/required-inputs.tsv)
 1. 备好 §0 的输入并核对摘要。
 2. `apktool d -f -o game_decoded <官方 APK>`；建自己的 keystore，`export KS_PASS=...`。
 3. 按 `docs/BUILD.md` §0 把脚本里的占位路径改成你的目录，`export ADB_BIN=... SERIAL=...`。
-4. 跑生成类脚本（`make_state` / `make_shopgoods` / `make_pvpreward` / `make_stageawards` /
-   `make_mirror` / `gen_protocol_descriptor`），产出 `stubapp/assets/` 里那 16 个资产。
+4. 凑齐 `stubapp/assets/` 里那 16 个资产：11 个由仓库里的生成脚本产出
+   （`make_state` 出 `player.json`+`shop.json` / `make_shopgoods` / `make_pvpreward` / `make_stageawards` /
+   `arena_state` 出 `arena.json`+`mail.json`+`task.json` / `gacha_state` / `make_mirror` / `gen_protocol_descriptor`），
+   另外 5 个（`common.descriptor.bin` / `version.json` / `lab-account.json` / `startup-key.json` /
+   `protocol-static.json`）**不生成**，要从设备上已安装的 `base.apk` 的 `assets/` 里取——逐条做法见
+   `docs/BUILD.md` §2 的来源表。
    **判据**：`SeedHashTest` 通过（它用 `Seed.java` 自己的哈希代码比 pin，含一个"改一字节必须失败"的控制）。
 5. `NO_INSTALL=1 PKG=cn bash tools/rebuild_relay.sh`。
    **判据**：脚本内建的六道——javac / d8 / 资产同步 / `SeedHashTest` / `pincheck`（暂存态与 in-apk 两次）/

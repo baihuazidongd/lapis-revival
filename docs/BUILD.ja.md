@@ -111,18 +111,46 @@ NO_INSTALL=1 PKG=jp bash tools/rebuild_relay.sh     # -> game_relay_jp.apk
    さらに APK から `assets/bin/Data/9bdd7e35b810546fdbe3f8fa3ec1fd55` を展開し、Unity に焼き込まれたエンドポイント文字列に
    18080（cn）/ 18090（jp）が含まれることをアサートする。
 
-### 生成系アセット（マスタデータを変えたら再実行必須）
+### 同梱する 16 アセットの入手元（`rebuild_relay.sh` の同期リスト）
 
-| スクリプト | 生成物 | 読み取り元 |
+| アセット | 入手元 | 説明 |
 | --- | --- | --- |
-| `make_state.py` | `player.json` | マスタデータ + セーブ状態：ガチャプール、ステージ星評価、ウォレット、クラブ、ルーム着席 |
-| `make_shopgoods.py` | `shopgoods.json` | P121 の課金／付与／購入制限テーブル |
-| `make_pvpreward.py` / `make_stageawards.py` | 対応 json | アリーナとステージ報酬 |
-| `make_mirror.py` | `mirror.json` | 時空の狭間：`ClubMirror` / `ClubMirrorEvent` / `Config` / `DropGroup` |
-| `gen_protocol_descriptor.py` | `protocol.descriptor.bin` | クライアント Lua 内のスキーマ宣言（**`FileDescriptorProto` 単一。Set ではない**、407 の message） |
+| `protocol.descriptor.bin` | `gen_protocol_descriptor.py` | クライアント Lua 内のスキーマ宣言（**`FileDescriptorProto` 単体、Set ではない**、407 message）。スタブは `DynamicMessage` でこれに従いレスポンスを組み立て、フィールド名も番号もすべてここにある |
+| `player.json` | `make_state.py` | マスタデータ + セーブ状態：ガチャプール、ステージ星評価、ウォレット、クラブ、ルーム座席 |
+| `shop.json` | `make_state.py` | ショップ画面の構造（`player.json` と同一スクリプト） |
+| `shopgoods.json` | `make_shopgoods.py` | `P121` の課金／付与／購入制限テーブル |
+| `pvpreward.json` | `make_pvpreward.py` | アリーナ戦後の報酬 |
+| `stageawards.json` | `make_stageawards.py` | ステージ報酬 |
+| `arena.json` | `arena_state.py` | `P200`/`P203` のシーズンと対戦相手リスト。各 id は `master_data.db` から読み出し相互照合しており、照合できなければ解決不能な id を出さず例外を上げる |
+| `mail.json` | `arena_state.py` | `P80` のメールと報酬 |
+| `task.json` | `arena_state.py` | `P60` のタスク（書き込む各タスク id は `TaskData` に存在必須） |
+| `gacha.json` | `gacha_state.py` | `P1024` のガチャプール |
+| `mirror.json` | `make_mirror.py` | 時空の狭間 `P180..P186`：`ClubMirror` / `ClubMirrorEvent` / `Config` / `DropGroup` |
+| `common.descriptor.bin` | **自前生成なし**：端末にインストール済みの `base.apk` の `assets/` から取る | クライアント同梱 |
+| `version.json` | 同上 | クライアント同梱 |
+| `lab-account.json` | 同上 | クライアント設定。ゲーム内容にあたる → リポジトリに含めない |
+| `startup-key.json` | 同上 | 同上 |
+| `protocol-static.json` | 同上 | 同上 |
+| `manifest.xml` | 同じく `base.apk` の `assets/` から | クライアント同梱の bundle 一覧。同期リストには**入らない**（我々が同梱しない）が、リソース解決が依存する |
 
-`protocol.descriptor.bin` は「Lua を読まずに、クライアントがどのフィールドを読むか聞き出す」ための入口：スタブは
-`DynamicMessage` でこれに従ってレスポンスを組み立てる。フィールド名も番号もすべてここにある。
+上の生成スクリプトの入力は、自分が持つ `master_data.db` / `master_data_lang.db` だけです（§0 参照）。
+つまりマスタデータを変えたら対応スクリプトを再実行しないと、APK 内のアセットと DB がズレます。
+
+末尾の 5 個（クライアント同梱ほう）の取り方：
+
+```bash
+adb -s "$SERIAL" shell pm path com.klab.lapis          # /data/app/.../base.apk を返す
+adb -s "$SERIAL" pull <上のパス> base.apk
+unzip -o base.apk "assets/common.descriptor.bin" "assets/version.json" \
+  "assets/lab-account.json" "assets/startup-key.json" "assets/protocol-static.json"
+cp assets/* ../../stubapp/assets/                       # ビルドルートのアセットDirへ
+```
+
+この 5 個には**ダイジェスト門がありません**：`Seed.java` がピン留めしているのは `master_data.db` と
+`master_data_lang.db` だけ（値は `manifests/pinned-assets.tsv`。この 2 ファイル自体は
+`manifests/required-inputs.tsv` で照合）。よって判定は挙動でしかできません：クライアントは冷起動時に
+この 5 個を読み、間違ったものを置くとタイトル画面で固まるか、トップ画面の `Config` テーブルが空になります。
+判据はやはりプロトコル番号 + 例外カウント（§7）。
 
 ---
 
@@ -196,6 +224,10 @@ adb -s "$SERIAL" logcat -d | grep "SEED tree installed"
 ---
 
 ## 7. 検収
+
+- ホーム基準画像は自動では生成されません：`tools/set_home_ref.sh` は候補フレームを 1 枚出すだけで、
+  **目視で確認してから** `cp home_cand.png home_ref.png` します。`delivery_gate.sh` は `home_ref.png` が
+  無い場合、独自の基準を捏造せず FATAL で終了します。
 
 ```bash
 bash tools/delivery_gate.sh      # コールドスタート + ページごとの判定基準
