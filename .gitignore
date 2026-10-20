@@ -1,0 +1,47 @@
+# Local inputs, private settings, generated state and research output
+/local/
+**/config.local.json
+.env
+.env.*
+!.env.example
+/.venv/
+**/__pycache__/
+*.py[cod]
+/build/
+/dist/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+# Game material and captured data must not enter this source repository.
+*.apk
+*.aab
+*.obb
+*.bdl
+*.bnk
+*.wem
+*.db
+*.sqlite*
+*.bin
+*.so
+*.dll
+*.dex
+*.lua
+*.pcap*
+*.log
+*.ndjson
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.mp3
+*.ogg
+*.mp4
+*.7z
+*.zip
+*.tar*
+*.pem
+*.key
+# Signing material stays on the builder's machine
+*.keystore
+*.jks
+*.p12

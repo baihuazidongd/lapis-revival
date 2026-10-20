@@ -1,0 +1,3 @@
+# expected digests of the local build inputs (not shipped; regenerate with tools/check_inputs.py)
+res/MasterData/master_data.db	863D8D45ECCB7402FC82C14633D33BFC124DFD02
+res/JP/master_data_lang.db	04E7190D04B9087B6EF7E4BE7DA80AB4B3BF2717

@@ -1,0 +1,10 @@
+# 我们这一版交付物的指纹（SHA-1，大写，与 ship_checksums.py 的输出同形）
+# format: <file>  <size in bytes>  <SHA-1>
+# 这些是"我们自己构建出来的产物"的摘要，不是任何游戏文件的摘要；
+# tree_*.zip 使用时会改名成 import.zip，摘要按发货时的文件算。
+# 构建不是逐位可复现（zip 时间戳进包），所以复现者应比对包内资产，而不是比对整包哈希。
+
+game_relay_cn.apk  242144815  0573CDBC2DAED89258D34565780D73DDA52DCBFC
+game_relay_jp.apk  240334383  825FCC9465EA90814105ACC4B34E3463F6B1BA0A
+tree_cn.zip  7003552761  EE22275DE3D6F0D19B0EBF1F99C3331229964DDA
+tree_jp.zip  7002068161  DBEB41DA41C13FA7B8672062553DC99783049F84
