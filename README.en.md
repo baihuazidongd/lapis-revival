@@ -75,5 +75,8 @@ The reason is in `NOTICE.md`: the game content is copyrighted by KLab / KADOKAWA
 
 ## Legal and ethical boundary
 
+The code and documents we authored here are open under the **MIT License** (see `LICENSE`) - any use
+is allowed, including commercial and closed-source derivatives. That grant covers only our own material, never third-party game content.
+
 Interoperability research only on **a work that is already shut down, on your own device**. No reopening of official services, no distributing
 game content, no circumventing any payment or anti-piracy mechanism still in force. All network requests are funnelled to `127.0.0.1`; the crash-reporting channel is original client behaviour and was left unchanged.

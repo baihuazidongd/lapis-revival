@@ -195,6 +195,10 @@ it survives `force-stop`, survives `adb install -r`, survives reboots; `pm clear
 
 ## 9. The boundaries of this project (read before taking over)
 
+The code, scripts and documents we authored in this repository are open under the **MIT License** (see `LICENSE`):
+any use is allowed, including closed-source commercial derivatives, with no further permission required. That grant
+covers **only our own material** - never any third-party game content.
+
 Interoperability research only on **a title already shut down on your own device**: no reopening of official services, no distributing game content,
 no circumventing any paywall or anti-piracy mechanism still in force. All network requests converge on `127.0.0.1`;
 the crash-report channel is original client behavior and was left untouched. Signing uses our own keystore (a signature change invalidates the original save — that's the trade-off).
