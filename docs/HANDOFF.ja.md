@@ -38,6 +38,11 @@ sha1sum -c <(awk '$1!~/^#/ {print $3"  "$1}' manifests/required-inputs.tsv)
 
 ---
 
+このリポジトリにあるのはコード・ツール・ドキュメントのみです。完全なオフラインパック（インストール可能な APK 2 本＋リソースツリー 2 本、
+約 13 GB）はここにもあらゆる公開ファイルホストにもありません：第三者ゲームコンテンツの派生物であり、公開配布は元権利者が
+決めることです。必要とする引き継ぎ者は `NOTICE.md` の方法で所有者に連絡し、招待（collaborator、または private リポジトリの Release 添付）で
+受け取ります。入手後最初に：`bash assemble_and_verify.sh --selftest`、続いて `bash assemble_and_verify.sh tree_cn.zip` でボリューム毎に検証。
+
 ## 1. ゼロからホーム画面まで（最短経路、各ステップの判定基準）
 
 1. §0 の入力を揃えてダイジェストを照合する。

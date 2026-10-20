@@ -38,6 +38,12 @@ so identity can only be judged by the **assets inside the package** and the lite
 
 ---
 
+This repository holds code, tooling and documents only. The complete offline pack (two installable APKs plus the two
+resource trees, about 13 GB) is not here and not on any public file host: it is derived third-party game content, and
+publishing it is not ours to decide. A taker who needs it contacts the repository owner through the route in `NOTICE.md`
+and receives it by invitation (collaborator access, or a release on a private repository). First move after receiving it:
+`bash assemble_and_verify.sh --selftest`, then `bash assemble_and_verify.sh tree_cn.zip` to verify every volume.
+
 ## 1. From scratch to the home screen (shortest path, with the criterion for each step)
 
 1. Stage the §0 inputs and verify their digests.
