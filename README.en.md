@@ -68,6 +68,7 @@ The reason is in `NOTICE.md`: the game content is copyrighted by KLab / KADOKAWA
 | File | Contents |
 | --- | --- |
 | `docs/BUILD.md` | **Build manual**: the path that works, commands and order, list of pitfalls, measured timings, open items (zh/en/ja) |
+| `docs/HANDOFF.md` | **Handover**: which inputs you need, the shortest reproduction path, current state, doors already closed by measurement, and what to do next (zh/en/ja) |
 | `docs/TECHNIQUES.md` | Technical document: determination methods, field semantics and failure cases (zh/en/ja) |
 | `docs/GAME.md` | Game introduction: what kind of game this is and how its systems look (zh/en/ja) |
 | `README.ja.md` / `README.en.md` | Japanese / English versions of this file |

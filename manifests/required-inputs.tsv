@@ -1,0 +1,18 @@
+# 复现所需的输入：文件、字节数、SHA-1、用途
+# 这些文件**不在本仓库里**，也不允许进本仓库（游戏内容版权归 KLab / KADOKAWA / 盛趣；
+# 且 GitHub 单文件上限 100 MB，资源树归档 4.2 GB）。
+# 用法：把你自己持有的同名文件放进一个目录，在该目录里跑：
+#   sha1sum -c <(awk '$1!~/^#/ {print $3"  "$1}' manifests/required-inputs.tsv)
+# 摘要对不上就不要继续——本项目有三次结论被推翻，都是因为"输入不是我以为的那一份"。
+#
+# file	size	sha1	role
+com.klab.lapis-1.5.0.apk	99757060	82FE913CCF4FA5D8D061F959A40D5F3D02589418	构建底座：apktool d 的输入（arm64-v8a + armeabi-v7a，含 libklbsqlite3.so，内部无 .bdl）
+Lapis-AssetBundles-20221022.7z	4229156448	187FACD56A7C9F2655B324080264E996DE1CE880	主机资源镜像来源 -> make_tree_zip.py 的主体
+Lapis-MasterData-20221022.7z	1799924	619BA689E15151368BDF291608A7804FA1B64E7A	解出 master_data.db / master_data_lang.db：Seed 的 pin 与所有 make_* 生成器的输入
+Lapis-SoundBanks-20221022.7z	1732452189	6A1357F4C04703A7C9DC0EB8D428946F03C2EFF1	SoundBank 补全段（设备原本只有 129/1,021 个 bank）
+Lapis-manifests-20221201.7z	1053953620	21675660C75343E0253EBC333ED41B6A91009406	上游清单/版本记录：确定设备真正会读哪些条目
+master_data.db	12013568	648EE8AD978D36D6595C20DA7E845034314C22DC	运行期主数据（从 MasterData 归档解出）：真机那份的摘要
+master_data_lang.db	1978368	1B211821B31266B8CF6BD99CF2561CF283DCBE42	语言表库（中文管线改写它；30,687 行、0 假名）
+manifest.xml	423504	DEC1159BF5A9006D2AECAA3DA87398692B08F5E1	ResourceManifest：bundle 与条目的对应关系
+apk_791000466_GG1007_1578944988398.apk	1776492902	9AADAECFA8423A651DFFE0E5B1E0AC26D0D61C07	渠道整包（含内置 AssetBundles，armeabi-v7a/x86，无 arm64）：**不是构建底座**，只用于内容比对与来源核对
+NotoSansSC-VF.ttf	17773244	343365AFCCC3693A63DC27F7053C1EC7CBA2F58E	中文字体覆盖面实验用（SIL Open Font License，可自由再分发）
