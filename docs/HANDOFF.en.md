@@ -54,7 +54,10 @@ so identity can only be judged by the **assets inside the package** and the lite
 7. Install + deliver: `adb install -r` → push as `import.zip` → launch once →
    **this one line is the only criterion**: `logcat -d | grep "SEED tree installed"`. Don't count files (the import runs for minutes; a mid-run count is always low).
 8. Cold-start acceptance: `bash tools/delivery_gate.sh`.
-   **Criterion**: on reaching the home screen, `P11 / P1024 / P120 / P132 / P60 / P1014 / P1028` all have service records, and the exception count is 0.
+   **Criterion**: on reaching home, `P11 / P1024 / P120 / P60` are answered by their own handlers, while
+   `P132 / P1014 / P1028` are only caught by the all-zero fallback (they do appear in the log but have **no handler** —
+   see §2 and §4), and the exception count for the run is 0.
+   The distinction matters: an unmapped protocol answers all zeros, so the page still opens and is simply empty.
 9. Page-by-page sweep: `bash tools/sweep_cn.sh`.
    **Criterion**: for each page record "the protocol numbers this click actually triggered + client exception count", not screenshots.
 10. JP package: `NO_INSTALL=1 PKG=jp bash tools/rebuild_relay.sh` +
@@ -130,7 +133,7 @@ Three other classes of residue are **not in the language table**, so stop lookin
 - **Heartbeats are not evidence.** `P9000` and `P1021` fire every 60 seconds; "the log moved" proves nothing about a click landing.
 - **Protocol map** (obtained by measurement, used as the oracle): `P11` home (includes `themes[].seats`) / `P120` shop / `P121` purchase /
   `P132` events / `P180..P186` the Rift / `P200` arena deploy / `P204` settlement / `P1001` terms consent /
-  `P1024` gacha / `P1028` missions / `P42` battle start.
+  `P1024` gacha / `P42` battle start. (`P132`/`P1014`/`P1028` have only the all-zero fallback, not a handler.)
 - **Exception counts beat screenshots**: enter each page once, `logcat -c` → operate → `logcat -d`, count `LuaException`.
   Never leave a persistent `logcat -v time` attached (a single sweep once wrote 2.1 GB).
 - **One driver per device**: two drivers interleaving clicks won't fail loudly — they just write fake results like "the page opened but no protocol".
